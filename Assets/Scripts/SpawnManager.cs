@@ -17,12 +17,14 @@ public class SpawnManager : MonoBehaviour
 
     PlayerController playerController;
     EnemyController enemyController;
+    GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
         enemyController = enemyPrefab[0].GetComponent<EnemyController>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         SpawnEnemyWave(waveNumber);
         SpawnPickup();
@@ -33,6 +35,9 @@ public class SpawnManager : MonoBehaviour
     {
         enemyCount = GameObject.FindGameObjectsWithTag("Enemy").Length;
         pickupCount = GameObject.FindGameObjectsWithTag("Pickup").Length;
+
+        gameManager.enemyLeftText.text = "Enemy Left: " + enemyCount;
+        gameManager.roundText.text = "Round: " + waveNumber;
 
         if (enemyCount == 0)
         {

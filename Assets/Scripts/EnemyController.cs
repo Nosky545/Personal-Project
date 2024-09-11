@@ -20,14 +20,24 @@ public class EnemyController : MonoBehaviour
     {
         if (playerController.hasPower)
         {
-            Vector3 lookDirection = (transform.position - player.transform.position).normalized;
-            transform.Translate(enemySpeed * Time.deltaTime * lookDirection);
+            Flee();
         }
 
         else
         {
-            Vector3 lookDirection = (player.transform.position - transform.position).normalized;
-            transform.Translate(enemySpeed * Time.deltaTime * lookDirection);
+            Attack();
         }
+    }
+
+    void Attack()
+    {
+        transform.Translate(enemySpeed * Time.deltaTime * Vector3.forward);
+        transform.LookAt(player.transform.position);
+    }
+
+    void Flee()
+    {
+        transform.Translate(enemySpeed * Time.deltaTime * Vector3.forward);
+        transform.LookAt(-player.transform.position);
     }
 }
