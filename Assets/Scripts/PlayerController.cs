@@ -18,8 +18,6 @@ public class PlayerController : MonoBehaviour
 
     public bool hasPower;
 
-    public GameObject pickupIndicator;
-
     private Animator animator;
 
     private Vector3 previousPosition;
@@ -28,23 +26,29 @@ public class PlayerController : MonoBehaviour
 
     public float timeRemaining;
 
+    public AudioClip deathSound;
+    public AudioClip enemyDeathSound;
+    public AudioClip powerupSound;
+
+    private AudioSource playerAudio;
+
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
+        playerAudio = GetComponent<AudioSource>();
+
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Move();
-        Look();
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (gameManager.isGameActive)
         {
-            Jump();
+            Move();
+            Look();
         }
 
         if (hasPower)
@@ -55,8 +59,6 @@ public class PlayerController : MonoBehaviour
 
         previousPosition.x = transform.position.x;
         previousPosition.z = transform.position.z;
-
-        pickupIndicator.transform.position = transform.position + new Vector3(0, -0.5f, 0);
     }
 
     void Move()
@@ -87,14 +89,6 @@ public class PlayerController : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, mouseX, 0);
     }
 
-    void Jump()
-    {
-        if (transform.position.y < 1)
-        {
-            playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }
-    }
-
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Pickup"))
@@ -102,9 +96,10 @@ public class PlayerController : MonoBehaviour
             hasPower = true;
             Destroy(other.gameObject);
             StartCoroutine(PickupCountdownRoutine());
-            pickupIndicator.SetActive(true);
             gameManager.powerupUI.SetActive(true);
             timeRemaining = 10;
+            animator.SetBool("isGrowing", true);
+            playerAudio.PlayOneShot(powerupSound);
         }
     }
 
@@ -112,11 +107,21 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy") && hasPower == true)
         {
-            Destroy(collision.gameObject);
+            Animator enemyAnim = collision.gameObject.GetComponentInChildren<Animator>();
+            enemyAnim.SetBool("isDying", true);
+
+            EnemyController enemyController = collision.gameObject.GetComponent<EnemyController>();
+            enemyController.isAlive = false;
+
+            GameObject dead = collision.gameObject;
+            StartCoroutine(DeathCountdownRoutine(dead));
+
+            playerAudio.PlayOneShot(enemyDeathSound);
         }
 
         else if (collision.gameObject.CompareTag("Enemy") && hasPower == false)
         {
+            playerAudio.PlayOneShot(deathSound);
             gameManager.GameOver();
         }
     }
@@ -125,7 +130,13 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(10);
         hasPower = false;
-        pickupIndicator.SetActive(false);
         gameManager.powerupUI.SetActive(false);
+        animator.SetBool("isGrowing", false);
+    }
+
+    IEnumerator DeathCountdownRoutine(GameObject dead)
+    {
+        yield return new WaitForSeconds(3);
+        Destroy(dead);
     }
 }

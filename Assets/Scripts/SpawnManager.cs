@@ -26,6 +26,8 @@ public class SpawnManager : MonoBehaviour
         enemyController = enemyPrefab[0].GetComponent<EnemyController>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
+        enemyController.enemySpeed = 2.5f;
+
         SpawnEnemyWave(waveNumber);
         SpawnPickup();
     }
@@ -64,10 +66,18 @@ public class SpawnManager : MonoBehaviour
     void SpawnPickup()
     {
         int powerupIndex = Random.Range(0, pickupPrefab.Length);
-        Instantiate(pickupPrefab[powerupIndex], GenerateSpawnPosition(), pickupPrefab[powerupIndex].transform.rotation);
+        Instantiate(pickupPrefab[powerupIndex], GenerateSpawnPosition2(), pickupPrefab[powerupIndex].transform.rotation);
     }
 
     private Vector3 GenerateSpawnPosition()
+    {
+        float spawnPosx = Random.Range(-spawnRange, spawnRange);
+        float spawnPosz = Random.Range(-spawnRange, spawnRange);
+        Vector3 randomPos = new Vector3(spawnPosx, 0, spawnPosz);
+        return randomPos;
+    }
+
+    private Vector3 GenerateSpawnPosition2()
     {
         float spawnPosx = Random.Range(-spawnRange, spawnRange);
         float spawnPosz = Random.Range(-spawnRange, spawnRange);

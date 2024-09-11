@@ -5,7 +5,8 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     private GameObject player;
-    public float enemySpeed = 1f;
+    public float enemySpeed;
+    public bool isAlive;
     PlayerController playerController;
 
     // Start is called before the first frame update
@@ -13,6 +14,7 @@ public class EnemyController : MonoBehaviour
     {
         player = GameObject.Find("Player");
         playerController = player.GetComponent<PlayerController>();
+        isAlive = true;
     }
 
     // Update is called once per frame
@@ -31,13 +33,19 @@ public class EnemyController : MonoBehaviour
 
     void Attack()
     {
-        transform.Translate(enemySpeed * Time.deltaTime * Vector3.forward);
-        transform.LookAt(player.transform.position);
+        if (isAlive)
+        {
+            transform.Translate(enemySpeed * Time.deltaTime * Vector3.forward);
+            transform.LookAt(player.transform.position);
+        }
     }
 
     void Flee()
     {
-        transform.Translate(enemySpeed * Time.deltaTime * Vector3.forward);
-        transform.LookAt(-player.transform.position);
+        if (isAlive)
+        {
+            transform.Translate(enemySpeed * Time.deltaTime * Vector3.forward);
+            transform.LookAt(-player.transform.position);
+        }
     }
 }
